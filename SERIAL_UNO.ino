@@ -1,6 +1,6 @@
 #include <SPI.h>
 int CS=3;
-byte data="@",rx;
+byte data=0x0D,rx;
 
 //13 SCK
 //12 MISO
@@ -17,13 +17,6 @@ setClockDivider(SPI_CLOCK_DIV128); //125 KHz
 SPI.beginTransaction (SPISettings (1000000, MSBFIRST, SPI_MODE0)); 
 */
 
-ISR (SPI_STC_vect){
-  byte c=SPDR;
-  Serial.println("Evento generado.");
-  Serial.println(c);
-}
-
-
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
@@ -32,19 +25,23 @@ void setup() {
   pinMode(PIN_SPI_SCK,OUTPUT);
   pinMode(PIN_SPI_SS,INPUT);
   pinMode(CS,OUTPUT);
-  //SPI.beginTransaction(SPISettings(2000000, MSBFIRST, SPI_MODE0));
+  SPI.beginTransaction(SPISettings(250000, MSBFIRST, SPI_MODE0));
+  //SPI.setClockDivider(SPI_CLOCK_DIV64);
   digitalWrite(CS,HIGH);
   Serial.println("Configuración cargada.");
 }
 
 void loop() {
   // put your main code here, to run repeatedly:   
-  Serial.println("Iniciando...");  
-  SPI.beginTransaction(SPISettings(250000, MSBFIRST, SPI_MODE0)); 
+  Serial.println("Iniciando...");
   digitalWrite(CS,LOW);
+  SPI.begin();
+  //SPI.beginTransaction(SPISettings(250000, MSBFIRST, SPI_MODE0)); 
+  //digitalWrite(CS,LOW);
   rx=SPI.transfer(data);
   delay(1000);
   Serial.println(rx);
-  digitalWrite(CS,HIGH);  
+  digitalWrite(CS,HIGH);
+  delay(1000);  
   Serial.println("Finalizando...");
 }
